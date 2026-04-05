@@ -38,13 +38,13 @@ class POSController extends Controller
      */
     public function search(Request $request)
     {
-        $query = $request->get('query');
+        $query = $request->input('query');
         
         $products = ProductVariant::with('product:id,name')
-            ->where(function($q) use ($query) {
+            ->where(function(\Illuminate\Database\Eloquent\Builder $q) use ($query) {
                 $q->where('sku', 'LIKE', "%$query%")
                   ->orWhere('barcode', 'LIKE', "%$query%")
-                  ->orWhereHas('product', function($pq) use ($query) {
+                  ->orWhereHas('product', function(\Illuminate\Database\Eloquent\Builder $pq) use ($query) {
                       $pq->where('name', 'LIKE', "%$query%");
                   });
             })

@@ -50,7 +50,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            @forelse($transactions as $t)
+                            @forelse ($transactions as $t)
                                 <tr class="hover:bg-slate-50/80 transition-colors group">
                                     <td class="px-10 py-6">
                                         <div class="flex items-center gap-3">

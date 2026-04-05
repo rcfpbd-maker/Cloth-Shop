@@ -18,7 +18,7 @@ class AccountController extends Controller
      */
     public function summary(Request $request)
     {
-        $range = $request->get('range', 'today'); // today, month, year
+        $range = $request->input('range', 'today'); // today, month, year
         $query = Sale::query();
         $expenseQuery = Expense::query();
         $collectionQuery = Payment::whereIn('reference_type', ['sale', 'customer']);
@@ -41,22 +41,27 @@ class AccountController extends Controller
         $totalProfit = 0;
         $saleIds = $query->pluck('id');
         
+        /** @var object|null $profitData */
         $profitData = DB::table('sale_items')
             ->join('product_variants', 'sale_items.product_variant_id', '=', 'product_variants.id')
             ->whereIn('sale_items.sale_id', $saleIds)
             ->select(DB::raw('SUM((sale_items.price * sale_items.quantity - sale_items.discount) - (product_variants.purchase_price * sale_items.quantity)) as total_profit'))
             ->first();
 
-        $netProfit = ($profitData->total_profit ?? 0) - $totalExpenses;
+        $grossProfit = $profitData && isset($profitData->total_profit) ? (float) $profitData->total_profit : 0;
+        $netProfit = $grossProfit - $totalExpenses;
+
+        /** @var \App\Models\DayClosing|null $latestClosing */
+        $latestClosing = DayClosing::latest('closing_date')->first();
 
         return response()->json([
             'range' => $range,
             'total_sales' => round($totalSales, 2),
             'total_collection' => round($totalCollection, 2),
             'total_expenses' => round($totalExpenses, 2),
-            'gross_profit' => round($profitData->total_profit ?? 0, 2),
+            'gross_profit' => round($grossProfit, 2),
             'net_profit' => round($netProfit, 2),
-            'current_cash_hand' => round(DayClosing::latest('closing_date')->first()->closing_cash ?? 0, 2)
+            'current_cash_hand' => round($latestClosing ? $latestClosing->closing_cash : 0, 2)
         ]);
     }
 }

@@ -91,6 +91,104 @@
                 }
             }
 
+            function notifications() {
+                return {
+                    items: [],
+                    unreadCount: 0,
+                    loading: false,
+                    open: false,
+                    async fetchNotifications() {
+                        this.loading = true;
+                        try {
+                            const res = await fetch('/api/notifications', {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                            if (res.ok) {
+                                this.items = await res.json();
+                                this.unreadCount = this.items.length;
+                            }
+                        } catch (e) {
+                            console.error('Failed to load notifications', e);
+                        } finally {
+                            this.loading = false;
+                        }
+                    },
+                    async markAsRead(id) {
+                        try {
+                            const res = await fetch(`/api/notifications/${id}/read`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                            if (res.ok) {
+                                // removing from items so it clears instantly
+                                this.items = this.items.filter(i => i.id !== id);
+                                this.unreadCount = this.items.length;
+                            }
+                        } catch (e) {}
+                    },
+                    async markAllAsRead() {
+                        try {
+                            const res = await fetch(`/api/notifications/read-all`, {
+                                method: 'POST',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                            if (res.ok) {
+                                this.items = [];
+                                this.unreadCount = 0;
+                            }
+                        } catch (e) {}
+                    },
+                    formatDate(dateString) {
+                        const date = new Date(dateString);
+                        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    }
+                }
+            }
+
+            function omniSearch() {
+                return {
+                    query: '',
+                    results: { products: [], customers: [], suppliers: [] },
+                    loading: false,
+                    open: false,
+                    async fetchResults() {
+                        if (this.query.length < 2) {
+                            this.results = { products: [], customers: [], suppliers: [] };
+                            this.open = false;
+                            return;
+                        }
+                        this.loading = true;
+                        this.open = true;
+                        try {
+                            const res = await fetch(`/api/search?q=${encodeURIComponent(this.query)}`, {
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            });
+                            if (res.ok) {
+                                this.results = await res.json();
+                            }
+                        } catch (e) {
+                            console.error('Search failed', e);
+                        } finally {
+                            this.loading = false;
+                        }
+                    }
+                }
+            }
+
             // Ensure Alpine is started AFTER all stack scripts have registered their data/init listeners
             window.addEventListener('DOMContentLoaded', () => {
                 if (window.Alpine) {

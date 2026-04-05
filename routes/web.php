@@ -19,6 +19,7 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\InventoryReportController;
 use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\CustomerLedgerController;
+use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\HalkhataController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ActivityLogController;
@@ -67,6 +68,7 @@ Route::middleware('auth')->group(function () {
 
     // People
     Route::resource('suppliers', SupplierController::class)->middleware('permission:suppliers.manage');
+    Route::get('customers/dashboard', [CustomerDashboardController::class, 'index'])->name('customers.dashboard')->middleware('permission:customers.view');
     Route::resource('customers', CustomerController::class)->middleware('permission:customers.view');
     Route::get('customers/{customer}/ledger', [CustomerLedgerController::class, 'index'])->middleware('permission:customers.view_ledger');
     Route::post('customers/payment', [CustomerLedgerController::class, 'storePayment'])->middleware('permission:customers.make_payment');
@@ -120,6 +122,33 @@ Route::middleware('auth')->group(function () {
 
     // Reports
     Route::prefix('reports')->group(function () {
+        // Export API
+        Route::get('api/export/sales', [ExportController::class, 'exportSales'])->middleware('permission:reports.view');
+        Route::get('api/export/purchases', [ExportController::class, 'exportPurchases'])->middleware('permission:reports.view');
+        Route::get('api/export/expenses', [ExportController::class, 'exportExpenses'])->middleware('permission:reports.view');
+        Route::get('api/export/customers', [ExportController::class, 'exportCustomers'])->middleware('permission:reports.view');
+        Route::get('api/export/products', [ExportController::class, 'exportProducts'])->middleware('permission:reports.view');
+        
+        // Notifications API
+        Route::get('api/notifications', [NotificationController::class, 'index']);
+        Route::get('api/notifications/all', [NotificationController::class, 'all']);
+        Route::post('api/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('api/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+        // Omnisearch API
+        Route::get('api/search', [\App\Http\Controllers\SearchController::class, 'globalSearch']);
+
+        // Maintenance API
+        Route::get('api/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->middleware('permission:settings.view');
+        Route::get('api/backups', [\App\Http\Controllers\BackupController::class, 'index'])->middleware('permission:settings.view');
+        Route::post('api/backups', [\App\Http\Controllers\BackupController::class, 'store'])->middleware('permission:settings.manage');
+        Route::get('api/backups/{id}/download', [\App\Http\Controllers\BackupController::class, 'download'])->middleware('permission:settings.view');
+        Route::post('api/backups/{id}/restore', [\App\Http\Controllers\BackupController::class, 'restore'])->middleware('permission:settings.manage');
+
+        // Maintenance Views
+        Route::view('activity-logs', 'maintenance.activity-log')->middleware('permission:settings.view')->name('activity-logs.index');
+        Route::view('backups', 'maintenance.backup')->middleware('permission:settings.view')->name('backups.index');
+
         Route::get('/sales', [ReportController::class, 'salesReport'])->middleware('permission:reports.sales')->name('reports.sales');
         Route::get('/stock', [ReportController::class, 'stockReport'])->middleware('permission:reports.stock')->name('reports.stock');
         Route::get('/finance', [ReportController::class, 'financeReport'])->middleware('permission:reports.finance')->name('reports.finance');

@@ -13,8 +13,8 @@ window.Alpine = Alpine;
 const app = createApp({});
 
 // Register Global Components
-import ExampleComponent from './components/ExampleComponent.vue';
-app.component('example-component', ExampleComponent);
+import DashboardView from './components/DashboardView.vue';
+app.component('dashboard-view', DashboardView);
 
 app.use(VueApexCharts);
 

@@ -34,9 +34,10 @@ class ProductController extends Controller
 
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            /** @var \Illuminate\Database\Eloquent\Builder $query */
+            $query->where(function(\Illuminate\Database\Eloquent\Builder $q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('variants', function($vq) use ($search) {
+                  ->orWhereHas('variants', function(\Illuminate\Database\Eloquent\Builder $vq) use ($search) {
                       $vq->where('sku', 'like', "%{$search}%")
                          ->orWhere('barcode', 'like', "%{$search}%");
                   });

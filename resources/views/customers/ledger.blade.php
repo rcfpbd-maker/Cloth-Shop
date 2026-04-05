@@ -34,7 +34,7 @@
             
             {{-- Timeline Layout --}}
             <div class="space-y-4">
-                @forelse($ledgers as $entry)
+                @forelse ($ledgers as $entry)
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 group hover:border-vibrant-indigo transition-all relative overflow-hidden">
                         {{-- Type Indicator --}}
                         <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ $entry->debit > 0 ? 'bg-rose-500' : 'bg-emerald-500' }}"></div>

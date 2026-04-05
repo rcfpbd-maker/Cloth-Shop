@@ -29,6 +29,7 @@ class SyncInvoices extends Command
         $sales = Sale::all();
         $this->info('Syncing ' . $sales->count() . ' Sales...');
         foreach ($sales as $sale) {
+            /** @var \App\Models\Sale $sale */
             $this->invoiceService->createFromSale($sale);
         }
 
@@ -36,6 +37,7 @@ class SyncInvoices extends Command
         $purchases = Purchase::all();
         $this->info('Syncing ' . $purchases->count() . ' Purchases...');
         foreach ($purchases as $purchase) {
+            /** @var \App\Models\Purchase $purchase */
             $this->invoiceService->createFromPurchase($purchase);
         }
 
@@ -43,6 +45,7 @@ class SyncInvoices extends Command
         $returns = ReturnItem::all();
         $this->info('Syncing ' . $returns->count() . ' Returns...');
         foreach ($returns as $return) {
+            /** @var \App\Models\ReturnItem $return */
             $this->invoiceService->createFromReturn($return);
         }
 

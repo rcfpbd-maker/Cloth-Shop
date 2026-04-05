@@ -39,21 +39,26 @@ class DashboardController extends Controller
 
         // Profit Calculation (Item-wise)
         $saleIdsToday = Sale::whereDate('sale_date', $today)->pluck('id');
+        /** @var object|null $profitDataToday */
         $profitDataToday = DB::table('sale_items')
             ->join('product_variants', 'sale_items.product_variant_id', '=', 'product_variants.id')
             ->whereIn('sale_items.sale_id', $saleIdsToday)
             ->select(DB::raw('SUM((sale_items.price * sale_items.quantity - sale_items.discount) - (product_variants.purchase_price * sale_items.quantity)) as total_profit'))
             ->first();
-        $todayNetProfit = ($profitDataToday->total_profit ?? 0) - $todayExpense;
+            
+        $todayGrossProfit = $profitDataToday && isset($profitDataToday->total_profit) ? (float) $profitDataToday->total_profit : 0;
+        $todayNetProfit = $todayGrossProfit - $todayExpense;
 
         // Cash in Hand (from latest day closing)
         $cashInHand = DayClosing::latest('closing_date')->first()->closing_cash ?? 0;
 
         // Cachable Heavy Queries
         $totalStockValue = Cache::remember('total_stock_value', 3600, function () {
-            return DB::table('product_variants')
+            /** @var object|null $stockData */
+            $stockData = DB::table('product_variants')
                 ->select(DB::raw('SUM(stock_quantity * purchase_price) as total_value'))
-                ->first()->total_value ?? 0;
+                ->first();
+            return $stockData && isset($stockData->total_value) ? (float) $stockData->total_value : 0;
         });
 
         $lowStockCount = Cache::remember('low_stock_count', 3600, function () {
@@ -111,6 +116,7 @@ class DashboardController extends Controller
             $salesTotal = Sale::whereDate('sale_date', $date)->sum('total_amount');
             
             $saleIds = Sale::whereDate('sale_date', $date)->pluck('id');
+            /** @var object|null $profitData */
             $profitData = DB::table('sale_items')
                 ->join('product_variants', 'sale_items.product_variant_id', '=', 'product_variants.id')
                 ->whereIn('sale_items.sale_id', $saleIds)
@@ -118,11 +124,12 @@ class DashboardController extends Controller
                 ->first();
             
             $expenses = Expense::whereDate('expense_date', $date)->sum('amount');
+            $grossProfit = $profitData && isset($profitData->profit) ? (float) $profitData->profit : 0;
 
             return [
                 'date' => $date,
                 'sales' => round($salesTotal, 2),
-                'profit' => round(($profitData->profit ?? 0) - $expenses, 2),
+                'profit' => round($grossProfit - $expenses, 2),
             ];
         });
 

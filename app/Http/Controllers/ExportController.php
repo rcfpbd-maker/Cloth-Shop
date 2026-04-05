@@ -7,6 +7,8 @@ use App\Models\Purchase;
 use App\Models\Expense;
 use App\Models\Payment;
 use App\Models\ExportLog;
+use App\Models\Customer;
+use App\Models\ProductVariant;
 use App\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -102,6 +104,61 @@ class ExportController extends Controller
 
         $expenses = $query->get();
         return $this->exportService->exportToPdf('exports.expenses', compact('expenses'), 'expense_report_' . date('Ymd'), 'expenses', $request->all());
+    }
+
+    /**
+     * Export Customers
+     */
+    public function exportCustomers(Request $request)
+    {
+        $request->validate(['format' => 'required|in:pdf,excel']);
+
+        $query = Customer::query();
+
+        if ($request->format == 'excel') {
+            $data = $query->get()->map(function($customer) {
+                return [
+                    'Name' => $customer->name,
+                    'Phone' => $customer->phone,
+                    'Address' => $customer->address,
+                    'Credit Limit' => $customer->credit_limit,
+                    'Due Amount' => $customer->previous_due,
+                ];
+            });
+            // ExportService uses 'exports.reports' prefix or dynamically generating CSV 
+            return $this->exportService->exportToCsv($data, 'customers_report_' . date('Ymd'), 'customers', $request->all());
+        }
+
+        $items = $query->get();
+        // Fallback to basic data view if specific template doesn't exist
+        return $this->exportService->exportToPdf('exports.customers', compact('items'), 'customers_report_' . date('Ymd'), 'customers', $request->all());
+    }
+
+    /**
+     * Export Products
+     */
+    public function exportProducts(Request $request)
+    {
+        $request->validate(['format' => 'required|in:pdf,excel']);
+
+        $query = ProductVariant::with('product');
+
+        if ($request->format == 'excel') {
+            $data = $query->get()->map(function($variant) {
+                return [
+                    'Product Name' => $variant->product->name,
+                    'Category' => $variant->product->category->name ?? 'N/A',
+                    'SKU' => $variant->sku,
+                    'Barcode' => $variant->barcode,
+                    'Price' => $variant->price,
+                    'Stock' => $variant->stock_quantity,
+                ];
+            });
+            return $this->exportService->exportToCsv($data, 'products_report_' . date('Ymd'), 'products', $request->all());
+        }
+
+        $items = $query->get();
+        return $this->exportService->exportToPdf('exports.products', compact('items'), 'products_report_' . date('Ymd'), 'products', $request->all());
     }
 
     /**

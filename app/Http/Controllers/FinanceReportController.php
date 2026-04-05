@@ -17,11 +17,12 @@ class FinanceReportController extends Controller
      */
     public function profitLoss(Request $request)
     {
-        $startDate = $request->get('start_date', Carbon::today()->toDateString());
-        $endDate = $request->get('end_date', Carbon::today()->toDateString());
+        $startDate = $request->input('start_date', Carbon::today()->toDateString());
+        $endDate = $request->input('end_date', Carbon::today()->toDateString());
 
         $saleIds = Sale::whereBetween('sale_date', [$startDate, $endDate])->pluck('id');
         
+        /** @var object|null $profitData */
         $profitData = DB::table('sale_items')
             ->join('product_variants', 'sale_items.product_variant_id', '=', 'product_variants.id')
             ->whereIn('sale_items.sale_id', $saleIds)
@@ -30,12 +31,13 @@ class FinanceReportController extends Controller
 
         $totalExpenses = Expense::whereBetween('expense_date', [$startDate, $endDate])->sum('amount');
         
-        $netProfit = ($profitData->total_profit ?? 0) - $totalExpenses;
+        $grossProfit = $profitData && isset($profitData->total_profit) ? (float) $profitData->total_profit : 0;
+        $netProfit = $grossProfit - $totalExpenses;
 
         return response()->json([
             'start_date' => $startDate,
             'end_date' => $endDate,
-            'gross_profit' => round($profitData->total_profit ?? 0, 2),
+            'gross_profit' => round($grossProfit, 2),
             'total_expenses' => round($totalExpenses, 2),
             'net_profit' => round($netProfit, 2)
         ]);
@@ -62,8 +64,8 @@ class FinanceReportController extends Controller
      */
     public function paymentMethods(Request $request)
     {
-        $startDate = $request->get('start_date', Carbon::today()->toDateString());
-        $endDate = $request->get('end_date', Carbon::today()->toDateString());
+        $startDate = $request->input('start_date', Carbon::today()->toDateString());
+        $endDate = $request->input('end_date', Carbon::today()->toDateString());
 
         $summary = Payment::with('paymentMethod')
             ->select('payment_method_id', DB::raw('SUM(amount) as total'))

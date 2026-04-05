@@ -46,11 +46,11 @@ class BackupController extends Controller
             $this->activityLogService->log('accounts', 'create', "Manual database backup created: {$backup->file_name}", $backup->id);
 
             // Notify admins
-            $this->notificationService->send([
-                'module' => 'accounts',
-                'type' => 'backup_complete',
-                'message' => "Database backup completed successfully: {$backup->file_name}",
-            ]);
+            $this->notificationService->notify(
+                'accounts',
+                'backup_complete',
+                "Database backup completed successfully: {$backup->file_name}"
+            );
 
             return response()->json([
                 'status' => 'success',
