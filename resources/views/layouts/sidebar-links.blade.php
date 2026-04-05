@@ -21,6 +21,7 @@
             <a href="{{ route('barcodes.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('barcodes*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Barcodes</a>
             <a href="{{ route('products.index') }}?low_stock=1" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->input('low_stock') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Stock Alerts</a>
             <a href="{{ route('categories.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('categories*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Categories</a>
+            <a href="{{ route('suppliers.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->is('suppliers*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Suppliers</a>
             <a href="{{ route('purchases.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->is('purchases*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Purchase Orders</a>
         </div>
     </div>
@@ -70,7 +71,7 @@
     </div>
 
     <!-- Users -->
-    <a href="#" class="text-slate-400 hover:bg-slate-800 hover:text-white flex items-center p-3 rounded-xl transition-all group">
+    <a href="{{ route('staff.index') }}" class="{{ request()->routeIs('staff.index') ? 'bg-vibrant-indigo text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} flex items-center p-3 rounded-xl transition-all group">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         <span class="ms-4 font-bold" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" x-transition>Staff Control</span>
     </a>
@@ -78,7 +79,7 @@
     <!-- Maintenance -->
     <a href="{{ route('activity-logs.index') }}" class="{{ request()->routeIs('activity-logs.index') ? 'bg-vibrant-indigo text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} flex items-center p-3 rounded-xl transition-all group">
         <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-        <span class="ms-4 font-bold" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" x-transition>Activity Logs</span>
+        <span class="ms-4 font-bold" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" x-transition>Audit Log</span>
     </a>
     
     <a href="{{ route('backups.index') }}" class="{{ request()->routeIs('backups.index') ? 'bg-vibrant-indigo text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} flex items-center p-3 rounded-xl transition-all group">

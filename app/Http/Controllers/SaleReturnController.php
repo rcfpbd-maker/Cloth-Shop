@@ -24,6 +24,18 @@ class SaleReturnController extends Controller
         $this->activityLogService = $activityLogService;
     }
     /**
+     * Paginated list of all sale returns
+     */
+    public function index(Request $request)
+    {
+        $returns = ReturnItem::with(['sale.customer', 'variant.product', 'creator'])
+            ->latest()
+            ->paginate(20);
+
+        return response()->json($returns);
+    }
+
+    /**
      * Store return items and adjust stock/financials
      */
     public function store(Request $request)

@@ -177,4 +177,63 @@ class SaleController extends Controller
             ]);
         });
     }
+
+    /**
+     * Cancel a sale — restore stock and reverse customer ledger
+     */
+    public function destroy(Sale $sale)
+    {
+        if ($sale->payments()->exists()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot cancel a sale that already has payments recorded.'
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($sale) {
+            // Restore stock for each item
+            foreach ($sale->items as $item) {
+                $variant = ProductVariant::find($item->product_variant_id);
+                if ($variant) {
+                    $variant->increment('stock_quantity', $item->quantity);
+
+                    InventoryTransaction::create([
+                        'product_variant_id' => $variant->id,
+                        'transaction_type'   => 'adjustment',
+                        'quantity'           => $item->quantity,
+                        'reference_id'       => $sale->id,
+                        'note'               => "Sale Cancelled: " . $sale->invoice_no,
+                        'created_by'         => auth()->id(),
+                    ]);
+                }
+            }
+
+            // Reverse customer ledger if credit sale
+            if ($sale->customer_id && $sale->due_amount > 0) {
+                $customer = Customer::find($sale->customer_id);
+                if ($customer) {
+                    $newBalance = $customer->updateBalance($sale->due_amount, 'credit');
+                    $customer->ledgers()->create([
+                        'type'           => 'adjustment',
+                        'reference_type' => Sale::class,
+                        'reference_id'   => $sale->id,
+                        'credit'         => $sale->due_amount,
+                        'balance'        => $newBalance,
+                        'note'           => 'Sale Cancelled: ' . $sale->invoice_no,
+                    ]);
+                }
+            }
+
+            $this->activityLogService->log('sales', 'delete', "Cancelled sale: {$sale->invoice_no}", $sale->id);
+
+            // Delete items and the sale
+            $sale->items()->delete();
+            $sale->delete();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Sale cancelled and stock restored.',
+            ]);
+        });
+    }
 }

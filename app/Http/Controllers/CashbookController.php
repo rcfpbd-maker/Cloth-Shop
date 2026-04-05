@@ -14,7 +14,7 @@ class CashbookController extends Controller
      */
     public function index(Request $request)
     {
-        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = $request->input('date', Carbon::today()->toDateString());
         
         $payments = Payment::with(['paymentMethod', 'reference', 'creator'])
             ->whereDate('payment_date', $date)

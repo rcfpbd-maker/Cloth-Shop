@@ -75,4 +75,20 @@ class FinanceReportController extends Controller
 
         return response()->json($summary);
     }
+
+    /**
+     * Supplier Due Report — mirrors the customer dues report
+     */
+    public function supplierDues()
+    {
+        $dues = \App\Models\Supplier::where('previous_due', '>', 0)
+            ->orderByDesc('previous_due')
+            ->get();
+
+        return response()->json([
+            'total_suppliers_with_due' => $dues->count(),
+            'total_due_amount'         => $dues->sum('previous_due'),
+            'data'                     => $dues,
+        ]);
+    }
 }

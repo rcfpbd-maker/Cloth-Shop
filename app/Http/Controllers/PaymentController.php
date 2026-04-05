@@ -97,4 +97,54 @@ class PaymentController extends Controller
             ]);
         });
     }
+
+    /**
+     * Reverse/delete a payment and correct ledger balances
+     */
+    public function destroy(Payment $payment)
+    {
+        return DB::transaction(function () use ($payment) {
+            if ($payment->reference_type === 'sale') {
+                $sale = Sale::find($payment->reference_id);
+                if ($sale) {
+                    $sale->decrement('paid_amount', $payment->amount);
+                    $sale->increment('due_amount', $payment->amount);
+
+                    if ($sale->customer_id) {
+                        $customer = $sale->customer;
+                        $newBalance = $customer->updateBalance($payment->amount, 'debit');
+                        $customer->ledgers()->create([
+                            'type'           => 'adjustment',
+                            'reference_type' => Payment::class,
+                            'reference_id'   => $payment->id,
+                            'debit'          => $payment->amount,
+                            'balance'        => $newBalance,
+                            'note'           => 'Payment Reversed for INV: ' . $sale->invoice_no,
+                        ]);
+                    }
+                }
+            } elseif ($payment->reference_type === 'customer') {
+                $customer = Customer::find($payment->reference_id);
+                if ($customer) {
+                    $newBalance = $customer->updateBalance($payment->amount, 'debit');
+                    $customer->ledgers()->create([
+                        'type'           => 'adjustment',
+                        'reference_type' => Payment::class,
+                        'reference_id'   => $payment->id,
+                        'debit'          => $payment->amount,
+                        'balance'        => $newBalance,
+                        'note'           => 'Payment Reversed',
+                    ]);
+                }
+            }
+
+            $this->activityLogService->log('accounts', 'delete', "Reversed payment of {$payment->amount}", $payment->id);
+            $payment->delete();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Payment reversed successfully.',
+            ]);
+        });
+    }
 }

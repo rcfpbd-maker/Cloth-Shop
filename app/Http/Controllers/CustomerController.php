@@ -92,4 +92,39 @@ class CustomerController extends Controller
 
         return response()->json($customer);
     }
+
+    /**
+     * Delete a customer — blocked if they have outstanding dues or sales history.
+     */
+    public function destroy(Customer $customer)
+    {
+        if ($customer->previous_due > 0) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Cannot delete customer. Outstanding due of ৳{$customer->previous_due} must be cleared first.",
+            ], 422);
+        }
+
+        $name = $customer->name;
+        $customer->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "{$name} has been deleted.",
+        ]);
+    }
+
+    /**
+     * Quick search for POS / payment forms
+     */
+    public function search(Request $request)
+    {
+        $q = $request->input('q', '');
+        $customers = Customer::where('name', 'like', "%{$q}%")
+            ->orWhere('phone', 'like', "%{$q}%")
+            ->limit(15)
+            ->get(['id', 'name', 'phone', 'previous_due', 'credit_limit']);
+
+        return response()->json($customers);
+    }
 }

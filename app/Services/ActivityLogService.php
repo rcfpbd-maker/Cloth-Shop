@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 
 class ActivityLogService
@@ -30,7 +31,7 @@ class ActivityLogService
             ]);
         } catch (\Exception $e) {
             // Log the error but don't break the main process
-            \Log::error("Failed to create activity log: " . $e->getMessage());
+            Log::error("Failed to create activity log: " . $e->getMessage());
         }
     }
 }

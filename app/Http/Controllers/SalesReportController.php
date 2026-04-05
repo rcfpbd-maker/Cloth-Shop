@@ -16,7 +16,7 @@ class SalesReportController extends Controller
      */
     public function daily(Request $request)
     {
-        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = $request->input('date', Carbon::today()->toDateString());
         
         $sales = Sale::with(['customer', 'paymentMethod'])
             ->whereDate('sale_date', $date)
@@ -37,8 +37,8 @@ class SalesReportController extends Controller
      */
     public function monthly(Request $request)
     {
-        $month = $request->get('month', Carbon::now()->month);
-        $year = $request->get('year', Carbon::now()->year);
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
 
         $sales = Sale::select(
                 DB::raw('DATE(sale_date) as date'),
@@ -70,7 +70,7 @@ class SalesReportController extends Controller
      */
     public function topProducts(Request $request)
     {
-        $limit = $request->get('limit', 10);
+        $limit = $request->input('limit', 10);
         
         $topProducts = SaleItem::select('product_variant_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(total) as total_revenue'))
             ->with(['variant.product'])

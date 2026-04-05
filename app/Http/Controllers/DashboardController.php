@@ -11,6 +11,8 @@ use App\Models\ProductVariant;
 use App\Models\Expense;
 use App\Models\DayClosing;
 use App\Models\Payment;
+use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -104,15 +106,18 @@ class DashboardController extends Controller
     }
 
     /**
-     * Data for Sales/Profit Charts
+     * Data for Sales/Profit Charts — supports ?days=7|14|30|90
      */
-    public function charts()
+    public function charts(Request $request)
     {
-        $last7Days = collect(range(0, 6))->map(function ($i) {
+        $days = min((int) $request->input('days', 7), 90);
+        $days = max($days, 1);
+
+        $dateRange = collect(range(0, $days - 1))->map(function ($i) {
             return Carbon::today()->subDays($i)->toDateString();
         })->reverse()->values();
 
-        $chartData = $last7Days->map(function ($date) {
+        $chartData = $dateRange->map(function ($date) {
             $salesTotal = Sale::whereDate('sale_date', $date)->sum('total_amount');
             
             $saleIds = Sale::whereDate('sale_date', $date)->pluck('id');
@@ -127,12 +132,22 @@ class DashboardController extends Controller
             $grossProfit = $profitData && isset($profitData->profit) ? (float) $profitData->profit : 0;
 
             return [
-                'date' => $date,
-                'sales' => round($salesTotal, 2),
+                'date'   => $date,
+                'sales'  => round($salesTotal, 2),
                 'profit' => round($grossProfit - $expenses, 2),
             ];
         });
 
         return response()->json($chartData);
+    }
+
+    /**
+     * Display a listing of the staff members.
+     */
+    public function staffIndex()
+    {
+        $users = User::with('role')->get();
+        $roles = Role::all();
+        return view('staff.index', compact('users', 'roles'));
     }
 }
