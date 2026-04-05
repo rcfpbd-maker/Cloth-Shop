@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('customers', CustomerController::class)->middleware('permission:customers.view');
     Route::get('customers/{customer}/ledger', [CustomerLedgerController::class, 'index'])->middleware('permission:customers.view_ledger');
     Route::post('customers/payment', [CustomerLedgerController::class, 'storePayment'])->middleware('permission:customers.make_payment');
+    Route::get('halkhata/reset', [HalkhataController::class, 'index'])->name('halkhata.index')->middleware('permission:customers.halkhata_reset');
     Route::post('halkhata/reset', [HalkhataController::class, 'reset'])->middleware('permission:customers.halkhata_reset');
 
     // Reports

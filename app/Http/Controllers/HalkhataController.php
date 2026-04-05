@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class HalkhataController extends Controller
 {
+    public function index()
+    {
+        return view('admin.halkhata-reset');
+    }
+
     public function reset(Request $request)
     {
         $request->validate([

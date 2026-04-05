@@ -51,7 +51,12 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(20);
 
-        return response()->json($products);
+        if ($request->ajax()) {
+            return response()->json($products);
+        }
+
+        $categories = Category::orderBy('name')->get(['id', 'name']);
+        return view('products.index', compact('products', 'categories'));
     }
 
     public function store(Request $request)
@@ -234,8 +239,9 @@ class ProductController extends Controller
      */
     public function indexView()
     {
+        $products = Product::latest()->paginate(20);
         $categories = Category::orderBy('name')->get(['id', 'name']);
-        return view('products.index', compact('categories'));
+        return view('products.index', compact('products', 'categories'));
     }
 
     /**

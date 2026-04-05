@@ -23,12 +23,21 @@
                     <svg class="w-5 h-5 absolute left-3 top-2.5 text-slate-400 group-focus-within:text-vibrant-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
 
-                <!-- Notifications -->
-                <div class="relative">
-                    <button class="p-2.5 rounded-2xl text-slate-400 hover:text-vibrant-indigo hover:bg-indigo-50 transition-all border border-slate-100 shadow-sm relative">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-vibrant-indigo rounded-full border-2 border-white animate-bounce"></span>
+                <!-- Global Actions -->
+                <div class="flex items-center space-x-2">
+                    <button @click="$dispatch('open-modal', 'add-customer-global')" 
+                            class="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 bg-emerald-500 text-white rounded-xl font-black shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all hover:-translate-y-0.5 text-xs sm:text-sm">
+                        <svg class="w-4 h-4 sm:w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span>New Customer</span>
                     </button>
+                    
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="p-2.5 rounded-2xl text-slate-400 hover:text-vibrant-indigo hover:bg-indigo-50 transition-all border border-slate-100 shadow-sm relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-vibrant-indigo rounded-full border-2 border-white animate-bounce"></span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Profile Dropdown -->

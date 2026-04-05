@@ -31,7 +31,12 @@ class ExpenseController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        return response()->json($query->latest()->paginate(20));
+        if ($request->wantsJson()) {
+            return response()->json($query->latest()->paginate(20));
+        }
+
+        $expenses = $query->latest()->paginate(20);
+        return view('accounts.expenses', compact('expenses'));
     }
 
     /**

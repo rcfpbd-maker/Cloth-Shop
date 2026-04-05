@@ -48,13 +48,19 @@ class CashbookController extends Controller
 
         $combined = $payments->concat($expenses)->sortByDesc('date')->values();
 
-        return response()->json([
+        $data = [
             'date' => $date,
             'summary' => [
-                'total_in' => $payments->where('type', 'Cash In')->sum('amount'),
-                'total_out' => $payments->where('type', 'Cash Out')->sum('amount') + $expenses->sum('amount'),
+                'total_in' => $payments->filter(fn($p) => $p['type'] === 'Cash In')->sum('amount'),
+                'total_out' => $payments->filter(fn($p) => $p['type'] === 'Cash Out')->sum('amount') + $expenses->sum('amount'),
             ],
             'transactions' => $combined
-        ]);
+        ];
+
+        if ($request->wantsJson()) {
+            return response()->json($data);
+        }
+
+        return view('accounts.cashbook', $data);
     }
 }

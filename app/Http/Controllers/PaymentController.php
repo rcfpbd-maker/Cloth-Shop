@@ -19,10 +19,15 @@ class PaymentController extends Controller
     {
         $this->activityLogService = $activityLogService;
     }
-    public function index()
+    public function index(Request $request)
     {
         $payments = Payment::with(['creator', 'paymentMethod', 'reference'])->latest()->paginate(20);
-        return response()->json($payments);
+        
+        if ($request->wantsJson()) {
+            return response()->json($payments);
+        }
+
+        return view('payments.index', compact('payments'));
     }
 
     /**

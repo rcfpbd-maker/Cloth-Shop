@@ -37,14 +37,25 @@
             <a href="{{ route('pos.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('pos.index') ? 'text-white bg-indigo-600' : 'text-slate-500 hover:text-white font-black' }}">📦 POS System</a>
             <a href="{{ route('sales.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('sales.index') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Sale History</a>
             <a href="{{ url('invoices') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->is('invoices*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Master Invoices</a>
+            <a href="{{ route('customers.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->is('customers*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Customer Database</a>
         </div>
     </div>
 
-    <!-- Accounts -->
-    <a href="#" class="text-slate-400 hover:bg-slate-800 hover:text-white flex items-center p-3 rounded-xl transition-all group">
-        <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        <span class="ms-4 font-bold" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" x-transition>Accounts</span>
-    </a>
+    <!-- Accounts & Finance -->
+    <div v-pre x-data="{ open: {{ request()->is('payments*') || request()->is('expenses*') || request()->is('cashbook*') ? 'true' : 'false' }} }">
+        <button @click="open = !open" 
+                class="w-full flex items-center p-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-all group">
+            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            <span class="ms-4 font-bold flex-1 text-left" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" x-transition>Finance</span>
+            <svg :class="open ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" x-show="!collapsed || {{ $isMobile ? 'true' : 'false' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div x-show="open && (!collapsed || {{ $isMobile ? 'true' : 'false' }})" class="mt-2 ms-10 space-y-1 transition-all" x-transition>
+            <a href="{{ route('payments.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('payments.index') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Payment Collection</a>
+            <a href="{{ route('expenses.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('expenses.index') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Shop Expenses</a>
+            <a href="{{ url('cashbook') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->is('cashbook*') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Cashbook</a>
+            <a href="{{ route('halkhata.index') }}" class="block p-2 text-sm font-bold rounded-lg transition-colors {{ request()->routeIs('halkhata.index') ? 'text-white bg-slate-800' : 'text-slate-500 hover:text-white' }}">Halkhata Reset (Yearly)</a>
+        </div>
+    </div>
 
     <!-- Notifications Hub -->
     <a href="#" class="text-slate-400 hover:bg-slate-800 hover:text-white flex items-center p-3 rounded-xl transition-all group lg:hidden">

@@ -14,12 +14,16 @@ class CustomerLedgerController extends Controller
     public function index(Request $request, $customerId)
     {
         $customer = Customer::findOrFail($customerId);
-        $ledgers = $customer->ledgers()->latest()->paginate(50);
+        $ledgers = $customer->ledgers()->latest()->paginate(30);
         
-        return response()->json([
-            'customer' => $customer,
-            'ledgers' => $ledgers
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'customer' => $customer,
+                'ledgers' => $ledgers
+            ]);
+        }
+
+        return view('customers.ledger', compact('customer', 'ledgers'));
     }
 
     public function storePayment(Request $request)

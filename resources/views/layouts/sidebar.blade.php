@@ -37,7 +37,7 @@
 </aside>
 
 <!-- Mobile Sidebar Drawer -->
-<div v-pre x-data="{ mobileOpen: false }" 
+<div v-pre x-data="{ mobileOpen: false, collapsed: false }" 
      @open-mobile-sidebar.window="mobileOpen = true"
      class="lg:hidden">
     

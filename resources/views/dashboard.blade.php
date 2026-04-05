@@ -5,9 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="py-6 sm:py-10 bg-slate-50 min-h-screen">
+    <div id="vue-app" class="py-6 sm:py-10 bg-slate-50 min-h-screen">
         <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+            {{-- Dashboard content remains exactly as it was, just wrapped in id="vue-app" --}}
             <!-- Dashboard Header -->
             <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                 <div>
@@ -24,8 +24,11 @@
                     <button class="btn-vibrant">
                         Generate Report
                     </button>
+                    </div>
                 </div>
             </div>
+            {{-- ...rest of cards... --}}
+            {{-- Reusing existing content from lines 30-165 --}}
 
             <!-- Top Row Widgets -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
